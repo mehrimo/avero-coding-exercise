@@ -1,9 +1,17 @@
 "use strict";
+
 (function(){
+var tableNumber = $("#table-number");
+var cartItems = [];
+var orderTotals = {
+  subtotal: 0,
+  tax: 0,
+  tip: 0,
+  total: 0,
+};
 
 buildTables();
 buildMenu();
-// getOrderTickets();
 
 function buildTables() {
         $.ajax({
@@ -17,116 +25,111 @@ function buildTables() {
             success: function(response) {
               console.log(JSON.parse(response));
                 var finalResponse = JSON.parse(response);
-                // var tbodyEl = $('tbody');
-
-                // tbodyEl.html('');
 
                 finalResponse.forEach(function(table) {
-                    // $('#table-dropdown').append(
-                    //   '<option value="' + table.id + '">' + table.number + '</option>');
-                    //
-                    $('#tableList').append('\
-                          <tr>\
-                            <td class="id">' + table.number + '</td>\
-                            <td>\
-                                <button class="new-ticket">New Ticket</button>\
-                                <button class="view-tickets">View Tickets</button>\
-                                <button class="update-button">UPDATE/PUT</button>\
-                                <button class="delete-button">DELETE</button>\
-                            </td>\
-                        </tr>\
-                    ');
+                  $('#table-number').append('<option>' +
+                  table.number + '</option>');
                 });
+
             }
         });
+
+        $('#table-btn').on('click', function(event) {
+          var table = tableNumber.val();
+          event.preventDefault();
+          console.log("The table number is: " + table);
+        });
+
     }
 
-function buildMenu() {
-        $.ajax({
-            url: 'https://check-api.herokuapp.com/items',
-            contentType: 'application/json',
-            type: 'GET',
-            headers: {
-              "Content-Type":"application/json",
-              "Authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImVlNTc2MzhmLWI0YWItNDhmZS1hNjdlLTYwMzNiNjkwMWRiZiIsIm5hbWUiOiJNZWhyaSJ9.qMKQh_xECSDEsRrZMzkWmbr3WKtfbSKF7a8xDxBvxYM"
-            },
-            success: function(response) {
-              console.log(JSON.parse(response));
-                var finalItems = JSON.parse(response);
-                // var tbodyEl = $('tbody');
+    function buildMenu() {
+            $.ajax({
+                url: 'https://check-api.herokuapp.com/items',
+                contentType: 'application/json',
+                type: 'GET',
+                headers: {
+                  "Content-Type":"application/json",
+                  "Authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImVlNTc2MzhmLWI0YWItNDhmZS1hNjdlLTYwMzNiNjkwMWRiZiIsIm5hbWUiOiJNZWhyaSJ9.qMKQh_xECSDEsRrZMzkWmbr3WKtfbSKF7a8xDxBvxYM"
+                },
+                success: function(response) {
+                  console.log(JSON.parse(response));
+                    var finalItems = JSON.parse(response);
 
-                // tbodyEl.html('');
+                    finalItems.forEach(function(item) {
+                        $('#menu-items').append('<li>' + item.name + '- $' + item.price + '<button id="' +
+                        item.id +
+                        '" class="add-item btn">Add</button></li>');
 
-                finalItems.forEach(function(item) {
-                    $('#menuItems').append('\
-                          <tr>\
-                            <td class="id">' + item.name + '- $' + item.price + '</td>\
-                        </tr>\
-                    ');
-                });
-            }
-        });
+                      $('.add-item').on('click', function(event) {
+                        event.preventDefault();
+                        addToCart(item);
+                        console.log(item, id);
+                        });
+                    });
+                }
+            });
+        }
+
+
+    function addToCart(item){
+      cartItems.push({
+        item: item,
+        id: item.id,
+        quantity: 1,
+      });
+      drawCart(cartItems);
     }
 
+    function drawCart(cartItems){
+      var cart = $(".cartItems");
+      cart.html('');
+      cartItems.forEach(function(cartItem){
+        cart.append(
+          '<tr>'+
+            '<td>' + cartItem.item.name + '</td>'+
+            '<td class="right-align">' + formatCurrency(cartItem.item.price) + '</td>' +
+          '</tr>'
+        );
+      });
+      calculate();
+    }
 
+    function formatCurrency(number) {
+      return '$' + number.toFixed(2);
+    }
 
+    function calculate() {
+      var subtotal = cartItems.reduce(function(accumulator, cartItems){
+        return accumulator + cartItems.item.price * cartItems.quantity;
+      }, 0);
+      var tax = subtotal * 0.08845;
+      var total = subtotal + tax;
+      var tip = total * 0.20;
+      orderTotals.subtotal = subtotal;
+      orderTotals.tax = tax;
+      orderTotals.total = total;
+      orderTotals.tip = tip;
+      drawOrderTotal();
+    }
 
-    // CREATE/POST
-    $('#create-form').on('submit', function(event) {
-        event.preventDefault();
+  function drawOrderTotal() {
+    var totals = $(".orderTotals");
+    totals.html('');
+      totals.append(
+        '<tr>' +
+          '<td class="right-align" data-field="subtotal">Subtotal</td>' +
+          '<td class="subtotal right-align">' + formatCurrency(orderTotals.subtotal) + '</td>'+
+        '</tr>' +
+          '<td class="right-align" data-field="tip">Tip</td>' +
+          '<td class="tip right-align">' + formatCurrency(orderTotals.tip) + '</td>' +
+        '<tr>' +
+          '<td class="right-align" data-field="tax">Tax</td>' +
+          '<td class="tax right-align">' + formatCurrency(orderTotals.tax) + '</td>' +
+        '<tr>' +
+          '<td class="right-align" data-field="total">Total</td>' +
+          '<td class="tax right-align">' + formatCurrency(orderTotals.total) + '</td>' +
+        '</tr>'
+      );
+    }
 
-        var createInput = $('#create-input');
-
-        $.ajax({
-            url: '/products',
-            method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ name: createInput.val() }),
-            success: function(response) {
-                console.log(response);
-                createInput.val('');
-                $('#get-button').click();
-            }
-        });
-    });
-
-    // CREATE NEW ORDER TICKET
-    // need to pull table id
-    $('table').on('click', '.view-tickets', function getOrderTickets() {
-      console.log("FOOD");
-
-              $.ajax({
-                  url: 'https://check-api.herokuapp.com/checks/:id',
-                  contentType: 'application/json',
-                  type: 'GET',
-                  headers: {
-                    "Content-Type":"application/json",
-                    "Authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImVlNTc2MzhmLWI0YWItNDhmZS1hNjdlLTYwMzNiNjkwMWRiZiIsIm5hbWUiOiJNZWhyaSJ9.qMKQh_xECSDEsRrZMzkWmbr3WKtfbSKF7a8xDxBvxYM"
-                  },
-                  success: function(response) {
-                    console.log(JSON.parse(response));
-                      var getTickets = JSON.parse(response);
-                      // var tbodyEl = $('tbody');
-
-                      // tbodyEl.html('');
-
-                      getTickets.forEach(function(check) {
-                          $('#ticketOrders').append(
-                                '<tr>' +
-                                  '<td class="id">' +
-                                  'Table: ' +
-                                  check.tableId +
-                                  '</td>' +
-                              '</tr>'
-                          );
-                      });
-                  }
-              });
-          }
-    );
-
-
-
-
-// End of code
 })();

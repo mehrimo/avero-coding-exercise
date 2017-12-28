@@ -1,35 +1,53 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Greasy Spoon POS</title>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+
+    <title>Welcome</title>
     <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <h1>Greasy Spoon POS</h1>
-    <button id="get-button">READ/GET Products</button>
-    <form id="create-form">
-        <input type="text" id="create-input">
-        <button>Create/POST</button>
-    </form>
-    <hr>
-    <table>
-        <h2>Tables</h2>
-        <tbody id="tableList">
-        </tbody>
-        <tbody id="menuItems">
-        </tbody>
-        <tr>
-            <td>
-          <button id="view-checks" type="button" name="button">View Open Checks</button>
-        </td>
-      </tr>
-      <tr>
-          <td>
-            <tbody id="ticketOrders">
-        </tbody>
-      </td>
-    </tr>
-    </table>
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+  </head>
+  <body>
+    <header>
+      <div class="container">
+      <div id="branding">
+        <img src="gs-logo.png" alt="">
+      </div>
+    </div>
+    </header>
+    <section id="boxes">
+      <div class="container">
+        <label for="">Table Number</label>
+        <select class="" id="table-number" name="">
+        </select>
+        <button  id="table-btn" name="button">Select table</button>
+      </div>
+      <div class="container">
+        <div class="box">
+            <form id="order-form">
+              <h3>Menu</h3>
+              <ul id="menu-items"></ul>
+          </form>
+        </div>
+
+        <div class="box">
+          <form id="create-ticket">
+          <h3>Order</h3>
+          <table>
+            <tbody class="cartItems">
+            </tbody>
+          </table>
+          <table>
+            <tbody class="orderTotals">
+              <h3>Total</h3>
+            </tbody>
+          </table>
+        </form>
+        </div>
+      <!-- <button  id="new-order" name="button">Create new order</button> -->
+      </div>
+    </section>
 
     <script src="https://code.jquery.com/jquery-3.1.1.min.js" ></script>
     <script src="app.js"></script>
