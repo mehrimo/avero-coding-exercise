@@ -81,11 +81,6 @@ header nav {
 .btn:hover {
   background: #46bdb9;
 }
-.btn.btn-big {
-  font-size: 18px;
-  padding: 15px 20px;
-  min-width: 100px;
-}
 
 .btn-small {
   background: #6ec5c2;
